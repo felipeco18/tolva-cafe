@@ -18,7 +18,7 @@ const FIREBASE_CONFIG = {
 };
 //
 // Cuando pegues los datos reales, cambia MODO_DEMO a false:
-const MODO_DEMO = FIREBASE_CONFIG.apiKey === "YOUR_API_KEY";
+const MODO_DEMO = false; // Firebase configurado
 // ================================================================
 
 // ─── ESTADO GLOBAL ─────────────────────────────────────────────
@@ -167,12 +167,15 @@ function setConexion(tipo) {
 
 // ─── HISTORIAL / CHART ─────────────────────────────────────────
 function agregarAlHistorial(temp, hum) {
+  // Ignorar lecturas con valores cero o inválidos (DHT11 en error)
+  if (!temp || !hum || temp <= 0 || hum <= 0) return;
   state.history.push({ t: Date.now(), temp, hum });
   if (state.history.length > 30) state.history.shift();
 }
 
 function renderChart() {
-  const pts = state.history;
+  // Filtrar puntos con valores inválidos antes de graficar
+  const pts = state.history.filter(p => p.temp > 0 && p.hum > 0 && isFinite(p.temp) && isFinite(p.hum));
   if (pts.length < 2) return;
 
   const W = 800, H = 280, padT = 20, padB = 30, padL = 10, padR = 10;
