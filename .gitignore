@@ -1,0 +1,26 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+
+# Compiled / build
+dist/
+build/
+
+# Secrets (nunca subir credenciales reales en repos públicos)
+.env
+.env.local
+secrets.json

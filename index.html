@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tolva de Café · Sistema Inteligente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ─── Textura de papel de fondo ─── -->
+<div class="paper-texture"></div>
+
+<!-- ─── HEADER ─── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 4C10 4 8 10 8 14C8 20 12 26 16 26C20 26 24 20 24 14C24 10 22 4 16 4Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <path d="M16 4C16 14 16 20 16 26" stroke="currentColor" stroke-width="1" fill="none"/>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">Tolva de Café</div>
+        <div class="brand-sub">Sistema Inteligente · UCP 2026</div>
+      </div>
+    </div>
+    <div class="status-pill" id="connection-pill">
+      <span class="status-dot"></span>
+      <span id="connection-text">Conectando...</span>
+    </div>
+  </div>
+</header>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Universidad Católica de Pereira · Circuitos I</div>
+    <h1 class="hero-title">
+      Cuidamos el grano<br>
+      <span class="hero-accent">desde la nube.</span>
+    </h1>
+    <p class="hero-lede">
+      Sistema automatizado de techo deslizante para el secado de café. Detecta la lluvia y la humedad ambiente en tiempo real y resguarda la cosecha sin intervención humana.
+    </p>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card" id="hero-card">
+      <div class="hero-card-header">
+        <span class="hero-card-label">Estado actual del techo</span>
+        <span class="hero-card-time" id="hero-time">—</span>
+      </div>
+      <div class="hero-card-state" id="hero-state">ABIERTO</div>
+      <div class="hero-card-meta">
+        <span id="hero-condition">Condiciones favorables · Café secándose</span>
+      </div>
+      <svg class="roof-illustration" viewBox="0 0 240 120" id="roof-svg">
+        <g class="roof-base">
+          <rect x="20" y="80" width="200" height="30" fill="#8B7355" rx="2"/>
+          <rect x="20" y="70" width="200" height="10" fill="#A89878"/>
+          <circle cx="50" cy="92" r="3" fill="#4A2C1A"/>
+          <circle cx="65" cy="95" r="3" fill="#3A1F12"/>
+          <circle cx="80" cy="93" r="3" fill="#4A2C1A"/>
+          <circle cx="95" cy="96" r="3" fill="#3A1F12"/>
+          <circle cx="110" cy="92" r="3" fill="#4A2C1A"/>
+          <circle cx="125" cy="95" r="3" fill="#3A1F12"/>
+          <circle cx="140" cy="93" r="3" fill="#4A2C1A"/>
+          <circle cx="155" cy="96" r="3" fill="#3A1F12"/>
+          <circle cx="170" cy="92" r="3" fill="#4A2C1A"/>
+          <circle cx="185" cy="95" r="3" fill="#3A1F12"/>
+          <circle cx="200" cy="93" r="3" fill="#4A2C1A"/>
+        </g>
+        <g class="roof-slider" id="roof-slider">
+          <rect x="20" y="40" width="200" height="14" fill="#A85432" rx="2"/>
+          <path d="M20 40 L120 20 L220 40 Z" fill="#C46B40"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LIVE METRICS ─── -->
+<section class="section">
+  <div class="section-head">
+    <div class="section-eyebrow">Lecturas en tiempo real</div>
+    <h2 class="section-title">El estado del cultivo, ahora mismo</h2>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card metric-rain" id="card-rain">
+      <div class="metric-head">
+        <span class="metric-label">Lluvia</span>
+        <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 3C8 9 5 12 5 16a7 7 0 0014 0c0-4-3-7-7-13z"/>
+        </svg>
+      </div>
+      <div class="metric-value" id="value-rain">NO</div>
+      <div class="metric-meta" id="meta-rain">Sensor FC-37 leyendo 820</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="bar-rain"></div></div>
+    </div>
+
+    <div class="metric-card metric-humidity">
+      <div class="metric-head">
+        <span class="metric-label">Humedad</span>
+        <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2L6 11a7 7 0 1012 0L12 2z"/>
+        </svg>
+      </div>
+      <div class="metric-value">
+        <span id="value-humidity">65</span><span class="metric-unit">%</span>
+      </div>
+      <div class="metric-meta" id="meta-humidity">DHT11 · Lectura óptima</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="bar-humidity" style="width: 65%"></div></div>
+    </div>
+
+    <div class="metric-card metric-temp">
+      <div class="metric-head">
+        <span class="metric-label">Temperatura</span>
+        <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 4v10.5a4 4 0 11-4 0V4a2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <div class="metric-value">
+        <span id="value-temp">24</span><span class="metric-unit">°C</span>
+      </div>
+      <div class="metric-meta" id="meta-temp">DHT11 · Rango normal</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="bar-temp" style="width: 50%"></div></div>
+    </div>
+
+    <div class="metric-card metric-roof" id="card-roof">
+      <div class="metric-head">
+        <span class="metric-label">Techo</span>
+        <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 11L12 3l9 8M5 10v10h14V10"/>
+        </svg>
+      </div>
+      <div class="metric-value metric-value-small" id="value-roof">ABIERTO</div>
+      <div class="metric-meta" id="meta-roof">Café recibiendo sol directo</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="bar-roof"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTROL MANUAL ─── -->
+<section class="section section-control">
+  <div class="control-wrap">
+    <div class="control-info">
+      <div class="section-eyebrow control-eyebrow">Control manual</div>
+      <h2 class="section-title">Override del operador</h2>
+      <p class="control-text">
+        Por defecto el sistema decide en automático según los sensores. Use estos controles para forzar el movimiento del techo cuando sea necesario.
+      </p>
+      <div class="control-mode">
+        <span class="control-mode-label">Modo actual</span>
+        <span class="control-mode-value" id="mode-value">AUTOMÁTICO</span>
+      </div>
+    </div>
+    <div class="control-buttons">
+      <button class="btn btn-open" id="btn-open">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+        <span>Abrir techo</span>
+      </button>
+      <button class="btn btn-close" id="btn-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M19 12l-7 7-7-7"/>
+        </svg>
+        <span>Cerrar techo</span>
+      </button>
+      <button class="btn btn-auto" id="btn-auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        <span>Volver a automático</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HISTORICO / GRAFICO ─── -->
+<section class="section section-chart">
+  <div class="section-head">
+    <div class="section-eyebrow">Histórico de las últimas horas</div>
+    <h2 class="section-title">Comportamiento del cultivo</h2>
+  </div>
+
+  <div class="chart-wrap">
+    <svg id="chart-svg" viewBox="0 0 800 280" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="gradTemp" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#A85432" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#A85432" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="gradHum" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#3A6B5C" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#3A6B5C" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g id="chart-grid"></g>
+      <path id="chart-temp-area" fill="url(#gradTemp)"></path>
+      <path id="chart-hum-area" fill="url(#gradHum)"></path>
+      <path id="chart-temp-line" stroke="#A85432" stroke-width="2" fill="none"/>
+      <path id="chart-hum-line" stroke="#3A6B5C" stroke-width="2" fill="none"/>
+    </svg>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-dot legend-temp"></span> Temperatura (°C)</span>
+      <span class="legend-item"><span class="legend-dot legend-hum"></span> Humedad (%)</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EVENTOS ─── -->
+<section class="section section-events">
+  <div class="section-head">
+    <div class="section-eyebrow">Eventos recientes</div>
+    <h2 class="section-title">Bitácora del sistema</h2>
+  </div>
+  <ul class="events-list" id="events-list"></ul>
+</section>
+
+<!-- ─── INFO PROYECTO ─── -->
+<section class="section section-team">
+  <div class="team-head">
+    <div class="section-eyebrow">El equipo</div>
+    <h2 class="section-title">Quienes construimos esto</h2>
+  </div>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar" data-letter="A">A</div>
+      <div class="team-name">Alejandro Piedrahita</div>
+      <div class="team-role">Hardware · construcción</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" data-letter="D">D</div>
+      <div class="team-name">Daniel Colorado</div>
+      <div class="team-role">Firmware · integración</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar" data-letter="S">S</div>
+      <div class="team-name">Sebastián Patiño</div>
+      <div class="team-role">App · UI/UX</div>
+    </div>
+  </div>
+  <div class="team-meta">
+    Docente: <strong>Eliana Piedrahita</strong> · Circuitos I · Universidad Católica de Pereira · 2026
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Tolva de Café</div>
+    <div class="footer-tech">
+      <span>Arduino UNO R3</span><span>·</span>
+      <span>ESP-32</span><span>·</span>
+      <span>DHT11</span><span>·</span>
+      <span>FC-37</span><span>·</span>
+      <span>OLED SSD1306</span><span>·</span>
+      <span>L293D</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── Firebase SDK (CDN — no requiere instalación) ─── -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
+<!-- ─── Lógica de la app ─── -->
+<script src="app.js"></script>
+</body>
+</html>
