@@ -36,7 +36,7 @@ const state = {
 };
 
 const UMBRAL_LLUVIA   = 500;
-const UMBRAL_HUM_CER  = 75;
+const UMBRAL_HUM_CER  = 95;
 const DURACION_MOTOR  = 3000;
 
 // ─── ELEMENTOS DOM ─────────────────────────────────────────────
@@ -389,4 +389,93 @@ function verificarFrescura(db) {
 
 function mostrarBotonRestablecer(db) {
   if (document.getElementById('stale-warning')) return; // ya visible
-  const div
+  const div = document.createElement('div');
+  div.id = 'stale-warning';
+  div.style.cssText = [
+    'background:#fff8e1',
+    'border:1.5px solid #e67e22',
+    'border-radius:10px',
+    'padding:10px 16px',
+    'margin:10px 0',
+    'display:flex',
+    'align-items:center',
+    'gap:14px',
+    'font-size:13px',
+    'color:#333'
+  ].join(';');
+  div.innerHTML = `
+    <span>⚠ El ESP32 dejó de enviar datos. El estado del techo puede no ser real.</span>
+    <button id="btn-reset-state" style="
+      background:#2E7D55;color:white;border:none;border-radius:6px;
+      padding:7px 16px;cursor:pointer;white-space:nowrap;font-size:13px;">
+      Restablecer techo a ABIERTO
+    </button>`;
+
+  el.connPill.insertAdjacentElement('afterend', div);
+
+  document.getElementById('btn-reset-state').addEventListener('click', () => {
+    db.ref('tolva').update({ techo: 0, lluvia: 0, comando: 'AUTO' });
+    addEvent('<strong>Sincronización manual:</strong> techo restablecido a ABIERTO', 'system');
+    div.remove();
+  });
+}
+
+// ─── DEMO — MODO SIN FIREBASE ──────────────────────────────────
+function iniciarModoDemo() {
+  setConexion('demo');
+
+  el.btnOpen.addEventListener('click', () => {
+    if (el.btnOpen.disabled) return;
+    state.mode = 'MANUAL';
+    if (state.roofState === 'CERRADO' || state.roofState === 'ABIERTO') {
+      iniciarMovimiento('ABRIENDO');
+      addEvent('<strong>Manual demo:</strong> abriendo techo', 'system');
+    }
+  });
+
+  el.btnClose.addEventListener('click', () => {
+    if (el.btnClose.disabled) return;
+    state.mode = 'MANUAL';
+    if (state.roofState === 'ABIERTO' || state.roofState === 'CERRADO') {
+      iniciarMovimiento('CERRANDO');
+      addEvent('<strong>Manual demo:</strong> cerrando techo', 'system');
+    }
+  });
+
+  el.btnAuto.addEventListener('click', () => {
+    state.mode = 'AUTOMATICO';
+    addEvent('<strong>Automático</strong> reactivado', 'system');
+    renderAll();
+  });
+
+  setInterval(simularLectura, 2000);
+  addEvent('Modo demo activo · configure Firebase para datos reales', 'system');
+}
+
+// ─── INICIALIZACIÓN ────────────────────────────────────────────
+function init() {
+  const ahora = Date.now();
+  for (let i = 0; i < 20; i++) {
+    state.history.push({
+      t:    ahora - (20 - i) * 60000,
+      temp: 22 + Math.sin(i / 3) * 2 + Math.random() * 1.5,
+      hum:  60 + Math.cos(i / 4) * 8 + Math.random() * 3
+    });
+  }
+
+  addEvent('Sistema <strong>iniciado correctamente</strong>', 'system');
+  addEvent('Sensores DHT11 y FC-37 <strong>conectados</strong>', 'sensor');
+  addEvent('Pantalla OLED <strong>en línea</strong> · 0x3C', 'system');
+
+  if (MODO_DEMO) {
+    console.warn('Firebase no configurado — modo demo activo');
+    iniciarModoDemo();
+  } else {
+    console.log('Iniciando Firebase...');
+    iniciarFirebase();
+  }
+
+  renderAll();
+}
+
+init();
