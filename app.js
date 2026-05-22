@@ -275,7 +275,20 @@ function iniciarFirebase() {
     // Escuchar cambios en tiempo real en /tolva
     db.ref('tolva').on('value', (snapshot) => {
       const data = snapshot.val();
-      if (!data) return;
+
+      // Firebase respondió — ya estamos conectados aunque esté vacío
+      state.firebaseOK = true;
+      const warn = document.getElementById('stale-warning');
+      if (warn) warn.remove();
+
+      if (!data) {
+        // Conectado a Firebase pero el ESP32 aún no ha enviado datos
+        el.connText.textContent = 'Firebase conectado · esperando ESP32';
+        el.connPill.style.background = '#2E7D5522';
+        const dot = el.connPill.querySelector('.status-dot');
+        if (dot) dot.style.background = '#2E7D55';
+        return;
+      }
 
       const estadosRoof = ['ABIERTO', 'CERRANDO', 'CERRADO', 'ABRIENDO'];
       const prevRoof = state.roofState;
@@ -299,10 +312,6 @@ function iniciarFirebase() {
 
       state.lastUpdate = Date.now();
       setConexion('live');
-      state.firebaseOK = true;
-      // Quitar aviso de desactualización si estaba visible
-      const warn = document.getElementById('stale-warning');
-      if (warn) warn.remove();
       renderAll();
     }, (error) => {
       console.error('Firebase error:', error);
@@ -380,18 +389,4 @@ function verificarFrescura(db) {
 
 function mostrarBotonRestablecer(db) {
   if (document.getElementById('stale-warning')) return; // ya visible
-  const div = document.createElement('div');
-  div.id = 'stale-warning';
-  div.style.cssText = [
-    'background:#fff8e1',
-    'border:1.5px solid #e67e22',
-    'border-radius:10px',
-    'padding:10px 16px',
-    'margin:10px 0',
-    'display:flex',
-    'align-items:center',
-    'gap:14px',
-    'font-size:13px',
-    'color:#333'
-  ].join(';');
-  div.inner
+  const div
