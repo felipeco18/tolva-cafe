@@ -31,7 +31,8 @@ const state = {
   mode:      'AUTOMATICO',
   history:   [],
   events:    [],
-  firebaseOK: false
+  firebaseOK: false,
+  lastUpdate: null        // timestamp del último dato recibido del ESP32
 };
 
 const UMBRAL_LLUVIA   = 500;
@@ -296,8 +297,12 @@ function iniciarFirebase() {
       }
       state.rain_prev = state.rain;
 
+      state.lastUpdate = Date.now();
       setConexion('live');
       state.firebaseOK = true;
+      // Quitar aviso de desactualización si estaba visible
+      const warn = document.getElementById('stale-warning');
+      if (warn) warn.remove();
       renderAll();
     }, (error) => {
       console.error('Firebase error:', error);
@@ -330,6 +335,9 @@ function iniciarFirebase() {
       renderAll();
     });
 
+    // ── Detector de datos desactualizados (cada 5 s) ───────────────
+    setInterval(() => verificarFrescura(db), 5000);
+
     addEvent('Firebase conectado · datos en vivo activos', 'system');
     console.log('Firebase inicializado correctamente');
 
@@ -340,63 +348,50 @@ function iniciarFirebase() {
   }
 }
 
-// ─── DEMO — MODO SIN FIREBASE ──────────────────────────────────
-function iniciarModoDemo() {
-  setConexion('demo');
+// ─── DETECTOR DE DATOS DESACTUALIZADOS ────────────────────────
+function verificarFrescura(db) {
+  if (!state.lastUpdate) return;
+  const segs = Math.floor((Date.now() - state.lastUpdate) / 1000);
+  const dot  = el.connPill.querySelector('.status-dot');
 
-  el.btnOpen.addEventListener('click', () => {
-    if (el.btnOpen.disabled) return;
-    state.mode = 'MANUAL';
-    if (state.roofState === 'CERRADO' || state.roofState === 'ABIERTO') {
-      iniciarMovimiento('ABRIENDO');
-      addEvent('<strong>Manual demo:</strong> abriendo techo', 'system');
-    }
-  });
+  if (segs < 20) {
+    // Datos frescos — verde normal
+    el.connText.textContent = `Datos en vivo · Firebase · hace ${segs}s`;
+    if (dot) dot.style.background = '#2E7D55';
+    el.connPill.style.background  = '#2E7D5522';
+    const warn = document.getElementById('stale-warning');
+    if (warn) warn.remove();
 
-  el.btnClose.addEventListener('click', () => {
-    if (el.btnClose.disabled) return;
-    state.mode = 'MANUAL';
-    if (state.roofState === 'ABIERTO' || state.roofState === 'CERRADO') {
-      iniciarMovimiento('CERRANDO');
-      addEvent('<strong>Manual demo:</strong> cerrando techo', 'system');
-    }
-  });
+  } else if (segs < 60) {
+    // Advertencia — ámbar
+    el.connText.textContent = `⚠ Sin actualizar hace ${segs}s · ESP32 desconectado?`;
+    if (dot) dot.style.background = '#e67e22';
+    el.connPill.style.background  = '#e67e2222';
+    mostrarBotonRestablecer(db);
 
-  el.btnAuto.addEventListener('click', () => {
-    state.mode = 'AUTOMATICO';
-    addEvent('<strong>Automático</strong> reactivado', 'system');
-    renderAll();
-  });
-
-  setInterval(simularLectura, 2000);
-  addEvent('Modo demo activo · configure Firebase para datos reales', 'system');
-}
-
-// ─── INICIALIZACIÓN ────────────────────────────────────────────
-function init() {
-  // Histórico inicial para que el gráfico no arranque vacío
-  const ahora = Date.now();
-  for (let i = 0; i < 20; i++) {
-    state.history.push({
-      t:    ahora - (20 - i) * 60000,
-      temp: 22 + Math.sin(i / 3) * 2 + Math.random() * 1.5,
-      hum:  60 + Math.cos(i / 4) * 8 + Math.random() * 3
-    });
-  }
-
-  addEvent('Sistema <strong>iniciado correctamente</strong>', 'system');
-  addEvent('Sensores DHT11 y FC-37 <strong>conectados</strong>', 'sensor');
-  addEvent('Pantalla OLED <strong>en línea</strong> · 0x3C', 'system');
-
-  if (MODO_DEMO) {
-    console.warn('Firebase no configurado — modo demo activo');
-    iniciarModoDemo();
   } else {
-    console.log('Iniciando Firebase...');
-    iniciarFirebase();
+    // Crítico — rojo
+    el.connText.textContent = `❌ Dispositivo desconectado · hace ${segs}s`;
+    if (dot) dot.style.background = '#c0392b';
+    el.connPill.style.background  = '#c0392b22';
+    mostrarBotonRestablecer(db);
   }
-
-  renderAll();
 }
 
-init();
+function mostrarBotonRestablecer(db) {
+  if (document.getElementById('stale-warning')) return; // ya visible
+  const div = document.createElement('div');
+  div.id = 'stale-warning';
+  div.style.cssText = [
+    'background:#fff8e1',
+    'border:1.5px solid #e67e22',
+    'border-radius:10px',
+    'padding:10px 16px',
+    'margin:10px 0',
+    'display:flex',
+    'align-items:center',
+    'gap:14px',
+    'font-size:13px',
+    'color:#333'
+  ].join(';');
+  div.inner
